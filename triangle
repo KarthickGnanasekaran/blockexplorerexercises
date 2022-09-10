@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.1;
+
+contract Triange{
+    
+    function triange(uint side1, uint side2, uint side3) public view returns(string memory){
+        if(side1==side2 && side2 == side3) {
+            return("The triangle is equilateral"); 
+            }
+            else if(side1 == side2 || side2 == side3)
+            {
+                return("The triangle is isoceles"); 
+                }
+            else return("the triangle is scalene");      
+        
+    }
+}
