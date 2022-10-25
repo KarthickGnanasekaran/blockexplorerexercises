@@ -1,0 +1,65 @@
+//SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.17;
+
+contract BookPublish {
+
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+ 
+    struct publisher {
+	    address publisherAddress;
+        uint256 publisherId;
+	    string publisherName;
+	    bool publisherWeight;
+	}
+
+    struct bookDetails {
+        uint bookId;
+        string bookName;
+        address publisherAddress;
+        uint  addedOn;
+    }
+
+    mapping (address => publisher) public publisherStatus;   
+    mapping (address => bookDetails[]) public listofBooks;
+
+    function addpublisher(address _publisherAddress, uint _publisherId, string memory _publisherName) public {
+        require(msg.sender == owner, "Only owner can add new publisher");
+        require(!publisherStatus[_publisherAddress].publisherWeight);
+        publisherStatus[_publisherAddress] = publisher(_publisherAddress, _publisherId, _publisherName, true);
+    }
+
+    function addBook(uint _bookId, string memory _bookName) public {
+        require(publisherStatus[msg.sender].publisherWeight,"Publisher not verififed");
+        listofBooks[msg.sender].push(bookDetails(_bookId,_bookName,msg.sender,block.timestamp));        
+    }
+
+  /*  function listofbooks(address _publisherAddress) public view returns(bookDetails[] memory) {
+        return(listofBooks[_publisherAddress]);
+    } */
+
+
+/*
+    struct book{        
+        uint256 bookId;
+        string  bookName;
+        address addedBy;
+    }
+
+
+    function storeBook(uint _bookId, string memory _bookname) public
+    {
+        bookDetails[msg.sender].push(book(_bookId,_bookname, msg.sender));
+    }
+
+
+    function showBook(address _addr) public view returns(uint, string memory, address){
+        return(bookDetails[_addr].bookId, bookDetails[_addr].bookName,bookDetails[_addr].addedBy);
+    } */
+}
+
+
+
