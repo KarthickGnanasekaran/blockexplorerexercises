@@ -3,63 +3,67 @@ pragma solidity ^0.8.17;
 
 contract BookPublish {
 
+   // State variable to store the address of owner deploying this contract
     address public owner;
-
+// constructor to set the owner to be the person deploying this contract
     constructor() {
         owner = msg.sender;
     }
- 
+ // struct to store publisher details
     struct publisher {
 	    address publisherAddress;
         uint256 publisherId;
 	    string publisherName;
 	    bool publisherWeight;
 	}
-
+// struct to store books added by publishers
     struct bookDetails {
         uint bookId;
+        uint  addedOn;
         string bookName;
         address publisherAddress;
-        uint  addedOn;
+
     }
 
+// mapping to store the publisher details against the address of the publisher
     mapping (address => publisher) public publisherStatus;   
+// Array mapping to store the book details     
     mapping (address => bookDetails[]) public listofBooks;
 
+// defining an event to emit everytime a new publisher is added
+    event addPublisher(
+        address publisherAddress,
+        uint256 publisherId,
+	    string publisherName        
+    );
+// defining an event to emit everytime a new book is added
+    event addBooks(
+        uint bookId,
+        uint  addedOn, 
+        string bookName,
+        address publisherAddress
+      
+    );
+
+// function to add a publisher with details of the publisher
     function addpublisher(address _publisherAddress, uint _publisherId, string memory _publisherName) public {
+       // condition to check only the owner can add a new publisher
         require(msg.sender == owner, "Only owner can add new publisher");
+        // condidtion to remove duplicate addition of existing publisher
         require(!publisherStatus[_publisherAddress].publisherWeight);
+        // storing the publisher details using the mapping key address
         publisherStatus[_publisherAddress] = publisher(_publisherAddress, _publisherId, _publisherName, true);
+        // emitting the add publisher event
+        emit addPublisher(_publisherAddress, _publisherId, _publisherName);
     }
-
+// function to add a book in the bookDetails array using publisher as key of mapping
     function addBook(uint _bookId, string memory _bookName) public {
+        // condition to check only the approved publishers can add book. Weight of the publisher should be true
         require(publisherStatus[msg.sender].publisherWeight,"Publisher not verififed");
-        listofBooks[msg.sender].push(bookDetails(_bookId,_bookName,msg.sender,block.timestamp));        
+        // addition of book to the array using mapping and bookdetails struct
+        listofBooks[msg.sender].push(bookDetails(_bookId,block.timestamp, _bookName,msg.sender));  
+        //emitting the add books event 
+        emit addBooks(_bookId,block.timestamp, _bookName,msg.sender);    
     }
 
-  /*  function listofbooks(address _publisherAddress) public view returns(bookDetails[] memory) {
-        return(listofBooks[_publisherAddress]);
-    } */
-
-
-/*
-    struct book{        
-        uint256 bookId;
-        string  bookName;
-        address addedBy;
-    }
-
-
-    function storeBook(uint _bookId, string memory _bookname) public
-    {
-        bookDetails[msg.sender].push(book(_bookId,_bookname, msg.sender));
-    }
-
-
-    function showBook(address _addr) public view returns(uint, string memory, address){
-        return(bookDetails[_addr].bookId, bookDetails[_addr].bookName,bookDetails[_addr].addedBy);
-    } */
 }
-
-
-
